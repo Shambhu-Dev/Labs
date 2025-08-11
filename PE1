@@ -1,0 +1,142 @@
+
+Fri Jun 27 15:02:52.568 UTC
+Building configuration...
+!! IOS XR Configuration 7.2.2
+!! Last configuration change at Fri Jun 27 15:02:51 2025 by cisco
+!
+hostname PE1
+logging console disable
+username cisco
+ group root-lr
+ group cisco-support
+ password 7 110A1016141D
+!
+username admin
+ group root-lr
+ group cisco-support
+ password 7 104D000A0618
+!
+username lab
+ group root-lr
+ group cisco-support
+ password 7 05080F1C2243
+!
+vrf TENANT1
+ address-family ipv4 unicast
+  import route-target
+   50000:50000
+  !
+  export route-target
+   50000:50000
+  !
+ !
+!
+line console
+ exec-timeout 0 0
+ absolute-timeout 0
+ session-timeout 0
+!
+line default
+ exec-timeout 0 0
+ absolute-timeout 0
+ session-timeout 0
+!
+call-home
+ service active
+ contact smart-licensing
+ profile CiscoTAC-1
+  active
+  destination transport-method http
+ !
+!
+interface Loopback0
+ ipv4 address 14.14.14.14 255.255.255.255
+!
+interface Loopback100
+ vrf TENANT1
+ ipv4 address 100.1.1.1 255.255.255.255
+!
+interface MgmtEth0/RP0/CPU0/0
+ shutdown
+!
+interface GigabitEthernet0/0/0/0
+ ipv4 address 22.1.1.6 255.255.255.252
+!
+interface GigabitEthernet0/0/0/1
+ vrf TENANT1
+ ipv4 address 192.167.1.1 255.255.255.0
+!
+interface GigabitEthernet0/0/0/2
+ shutdown
+!
+interface GigabitEthernet0/0/0/3
+ shutdown
+!
+interface GigabitEthernet0/0/0/4
+ shutdown
+!
+interface GigabitEthernet0/0/0/5
+ shutdown
+!
+interface GigabitEthernet0/0/0/6
+ shutdown
+!
+interface GigabitEthernet0/0/0/7
+ shutdown
+!
+interface GigabitEthernet0/0/0/8
+ shutdown
+!
+route-policy PASS_ALL
+  pass
+end-policy
+!
+router ospf CORE
+ router-id 14.14.14.14
+ segment-routing mpls
+ segment-routing sr-prefer
+ address-family ipv4 unicast
+ area 0
+  segment-routing mpls
+  interface Loopback0
+   prefix-sid index 3
+  !
+  interface GigabitEthernet0/0/0/0
+  !
+ !
+!
+router bgp 65200
+ bgp router-id 14.14.14.14
+ address-family ipv4 unicast
+  network 14.14.14.14/32
+  allocate-label all
+ !
+ address-family vpnv4 unicast
+ !
+ neighbor 22.1.1.1
+  remote-as 65200
+  address-family ipv4 labeled-unicast
+   route-policy PASS_ALL in
+   route-policy PASS_ALL out
+  !
+ !
+ neighbor 12.12.12.12
+  remote-as 65200
+  update-source Loopback0
+  address-family vpnv4 unicast
+   route-policy PASS_ALL in
+   route-policy PASS_ALL out
+  !
+ !
+ vrf TENANT1
+  rd auto
+  address-family ipv4 unicast
+   redistribute connected
+   redistribute static
+  !
+ !
+!
+segment-routing
+ global-block 16000 23999
+!
+end
