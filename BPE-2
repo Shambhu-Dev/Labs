@@ -1,12 +1,12 @@
 
 !Command: show running-config
-!Running configuration last done at: Mon Aug 11 11:21:23 2025
-!Time: Mon Aug 11 11:21:23 2025
+!Running configuration last done at: Mon Aug 11 11:21:00 2025
+!Time: Mon Aug 11 11:21:01 2025
 
 version 9.3(6) Bios:version  
-hostname BPE1
+hostname BPE2
 install feature-set mpls
-vdc BPE1 id 1
+vdc BPE2 id 1
   allow feature-set mpls
   limit-resource vlan minimum 16 maximum 4094
   limit-resource vrf minimum 2 maximum 4096
@@ -28,13 +28,13 @@ feature vn-segment-vlan-based
 feature nv overlay
 
 no password strength-check
-username admin password 5 $5$MIKDFB$LpLMJ02XISiLuUP2Yk9bHUayL1H4tgjPfjOPqzbHqxC  role network-admin
-username cisco password 5 $5$IBFFBG$BcsiLYeroieHYINfPnnj/LbDw5mHXNuenfpgegI3Nc8  role network-admin
+username admin password 5 $5$AJGJPH$Fjn..vSQYZyzdn5aH38Fw7hVrZE2YGzJr1W86jsv.s5  role network-admin
+username cisco password 5 $5$GECKJG$lQpMh/8YLj03m1tpG3KuS7juA1RpKeOrwY5sMCBKZ8A  role network-admin
 username cisco passphrase  lifetime 99999 warntime 14 gracetime 3
 ip domain-lookup
 copp profile strict
-snmp-server user admin network-admin auth md5 0xd65ce6b81143f7135d12d24d12e5e80b priv 0xd65ce6b81143f7135d12d24d12e5e80b localizedkey
-snmp-server user cisco network-admin auth md5 0xd65ce6b81143f7135d12d24d12e5e80b priv 0xd65ce6b81143f7135d12d24d12e5e80b localizedkey
+snmp-server user admin network-admin auth md5 0x6ae3a2b251e44cf3fb947d47717b2635 priv 0x6ae3a2b251e44cf3fb947d47717b2635 localizedkey
+snmp-server user cisco network-admin auth md5 0x6ae3a2b251e44cf3fb947d47717b2635 priv 0x6ae3a2b251e44cf3fb947d47717b2635 localizedkey
 rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
 rmon event 2 log trap public description CRITICAL(2) owner PMON@CRITICAL
 rmon event 3 log trap public description ERROR(3) owner PMON@ERROR
@@ -51,7 +51,7 @@ segment-routing
   mpls
     connected-prefix-sid-map
       address-family ipv4
-        10.10.10.10/32 index 10
+        11.11.11.11/32 index 11
 vlan 10
   vn-segment 100010
 vlan 50
@@ -109,7 +109,7 @@ interface nve1
 
 interface Ethernet1/1
   mtu 9150
-  ip address 10.11.18.2/30
+  ip address 10.11.19.2/30
   ip ospf cost 4
   ip ospf network point-to-point
   ip router ospf UNDERLAY area 0.0.0.0
@@ -117,14 +117,11 @@ interface Ethernet1/1
   no shutdown
 
 interface Ethernet1/2
-  ip address 21.1.1.1/30
+  ip address 21.1.1.5/30
   mpls ip forwarding
   no shutdown
 
 interface Ethernet1/3
-  switchport
-  switchport mode trunk
-  no shutdown
 
 interface Ethernet1/4
 
@@ -252,18 +249,14 @@ interface mgmt0
   vrf member management
 
 interface loopback0
-  ip address 10.10.10.10/32
+  ip address 11.11.11.11/32
   ip router ospf UNDERLAY area 0.0.0.0
   ip pim sparse-mode
 
 interface loopback1
   description NVE-LOOPBACK
-  ip address 10.10.10.11/32
+  ip address 10.10.10.12/32
   ip router ospf UNDERLAY area 0.0.0.0
-
-interface loopback100
-  vrf member TENANT1
-  ip address 100.1.1.2/32 tag 12345
 icam monitor scale
 
 line console
@@ -275,10 +268,11 @@ boot nxos bootflash:/nxos.9.3.6.bin sup-1
 no logging console
 router ospf UNDERLAY
 router bgp 65100
-  router-id 10.10.10.10
+  router-id 11.11.11.11
   address-family ipv4 unicast
-    network 10.10.10.10/32
+    network 11.11.11.11/32
     allocate-label all
+  address-family ipv4 labeled-unicast
   neighbor 7.7.7.7
     remote-as 65100
     update-source loopback0
@@ -297,7 +291,7 @@ router bgp 65100
       send-community
       send-community extended
       import l2vpn evpn reoriginate
-  neighbor 21.1.1.2
+  neighbor 21.1.1.6
     remote-as 65200
     update-source Ethernet1/2
     address-family ipv4 labeled-unicast
